@@ -41,14 +41,44 @@ return {
         ["<C-f>"] = cmp.mapping.scroll_docs(4),
         ["<C-Space>"] = cmp.mapping.complete(), -- show completion suggestions
         ["<C-e>"] = cmp.mapping.abort(), -- close completion window
-        ["<CR>"] = cmp.mapping.confirm({ select = false }),
+        -- Confirm with auto-import support
+        ["<CR>"] = cmp.mapping.confirm({
+          select = false,
+          behavior = cmp.ConfirmBehavior.Replace,
+        }),
+        -- Tab to select next item or expand snippet
+        ["<Tab>"] = cmp.mapping(function(fallback)
+          if cmp.visible() then
+            -- Confirm selection with auto-import if item is selected
+            local entry = cmp.get_selected_entry()
+            if entry then
+              cmp.confirm({ select = false, behavior = cmp.ConfirmBehavior.Replace })
+            else
+              cmp.select_next_item()
+            end
+          elseif luasnip.expand_or_jumpable() then
+            luasnip.expand_or_jump()
+          else
+            fallback()
+          end
+        end, { "i", "s" }),
+        -- Shift-Tab to select previous item or jump back in snippet
+        ["<S-Tab>"] = cmp.mapping(function(fallback)
+          if cmp.visible() then
+            cmp.select_prev_item()
+          elseif luasnip.jumpable(-1) then
+            luasnip.jump(-1)
+          else
+            fallback()
+          end
+        end, { "i", "s" }),
       }),
-      -- sources for autocompletion
+      -- sources for autocompletion (LSP first for auto-imports)
       sources = cmp.config.sources({
-        { name = "nvim_lsp"},
-        { name = "luasnip" }, -- snippets
-        { name = "buffer" }, -- text within current buffer
-        { name = "path" }, -- file system paths
+        { name = "nvim_lsp", priority = 1000 }, -- LSP with highest priority
+        { name = "luasnip", priority = 750 }, -- snippets
+        { name = "buffer", priority = 500 }, -- text within current buffer
+        { name = "path", priority = 250 }, -- file system paths
       }),
 
       -- configure lspkind for vs-code like pictograms in completion menu
