@@ -25,9 +25,10 @@ return {
     })
 
     mason_lspconfig.setup({
+      automatic_enable = false, -- disable automatic_enable to avoid compatibility issues
       -- list of servers for mason to install
       ensure_installed = {
-        "tsserver",
+        "ts_ls", -- renamed from tsserver
         "html",
         "cssls",
         "tailwindcss",
@@ -36,7 +37,6 @@ return {
         "graphql",
         "emmet_ls",
         "prismals",
-
         "jdtls",
       },
     })
@@ -46,7 +46,6 @@ return {
         "prettier", -- prettier formatter
         "stylua", -- lua formatter
         "isort", -- python formatter
-        "black", -- python formatter
         "eslint_d",
       },
     })
