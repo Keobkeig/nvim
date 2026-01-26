@@ -46,9 +46,12 @@ return {
           select = false,
           behavior = cmp.ConfirmBehavior.Replace,
         }),
-        -- Tab to select next item or expand snippet
+        -- Tab to accept Copilot, or select next item, or expand snippet
         ["<Tab>"] = cmp.mapping(function(fallback)
-          if cmp.visible() then
+          local copilot = require("copilot.suggestion")
+          if copilot.is_visible() then
+            copilot.accept()
+          elseif cmp.visible() then
             -- Confirm selection with auto-import if item is selected
             local entry = cmp.get_selected_entry()
             if entry then
